@@ -1,4 +1,5 @@
 ArduinoMicroSynth
+
 Intendo realizzare un synth analogico pilotato via MIDI attraverso un Arduino Uno.
 Il sintetizzatore è costituito da due organi fondamentali:
 
