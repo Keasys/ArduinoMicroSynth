@@ -11,11 +11,14 @@ Il sintetizzatore è costituito da due organi fondamentali:
   l'amplificatore riceve anch'esso una tensione d'ingresso per regolare il volume in uscita
   
 Il software si occupa di gestire 3 funzionalità principali:
+
   -gestione dei messaggi MIDI in ingresso
+  
   -erogazione della tensione per l'oscillatore ,attraverso il PWM generato da Arduino , secondo il messaggio MIDI ricevuto,       
-  opportunamente filtrato.
+    opportunamente filtrato.
+  
   -erogazione della tensione per l'amplificatore, attraverso un output digitale PWM, filtrato opportunatamente, per ottenere una               
-  tensione continua.
+    tensione continua.
   
  La dinamica è regolabile secondo un ADSR implementato via software, attraverso quattro potenziometri:
   - Attacco: tempo necessario per raggiungere il volume massimo
