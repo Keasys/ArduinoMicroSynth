@@ -15,7 +15,6 @@
 #define SUSTAIN A2
 #define RELEASE A3
 
-
 MIDI_CREATE_DEFAULT_INSTANCE();
 
 typedef struct{
@@ -41,6 +40,7 @@ BREAKPOINT newPoint(double t, double amp){
   p.t = t;
   return p;
 }
+
 void adsModify(ENVELOPE *env){
   env->points[1].t = analogRead(ATTACK)/1000;
   env->points[2].t = analogRead(DECAY)/1000;
@@ -126,12 +126,14 @@ double envNextValue(ENVELOPE *e){
 double voltageFromMIDI(byte pitch){
   if (pitch < C1)
     pitch = C1;
-  return BASEC * pow(pitch-C1+1,SEMITONE);
+  return BASEC * pow(SEMITONE, pitch-C1+1);
   
 }
 
 double getValueFromVoltage(double voltage){
-  return ( ( voltage / 5.0 ) * 255 );
+  if (voltage > 5)
+    return 5.0;
+  return (int)( ( voltage / 5.0 ) * 255 );
 }
 
 //variabili di servizio
