@@ -1,4 +1,4 @@
-#include <MIDI.h>
+\#include <MIDI.h>
 
 #define SEMITONE 1.059
 #define BASEC 0.3311
@@ -147,9 +147,9 @@ double voltageFromMIDI(byte pitch){
   
 }
 
-double getValueFromVoltage(double voltage){
+int getValueFromVoltage(double voltage){
   if (voltage > 5)
-    return 5.0;
+    return 5;
   return (int)( ( voltage / 5.0 ) * 255 );
 }
 
@@ -218,6 +218,6 @@ void loop()
       digitalWrite(LED,LOW);
      
     }
-    analogWrite(AMP,currentamp*255);
+    analogWrite(AMP,(int)(currentamp*255));
     delayMicroseconds(2);
 }
