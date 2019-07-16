@@ -4,7 +4,7 @@
 #define BASEC 0.3311
 #define SRATE 5000.0
 #define C1 24
-#define PERIOD 0.002
+#define PERIOD 0.000002
 
 #define AMP 9
 #define FREQ 10
@@ -13,7 +13,7 @@
 #define ATTACK A0
 #define DECAY A1
 #define SUSTAIN A2
-#define RELEASE A3
+#define RELEASE A1
 
 MIDI_CREATE_DEFAULT_INSTANCE();
 
@@ -43,7 +43,7 @@ BREAKPOINT newPoint(double t, double amp){
 
 void adsModify(ENVELOPE *env){
   env->points[1].t = analogRead(ATTACK)/1000;
-  env->points[2].t = analogRead(DECAY)/1000;
+  env->points[2].t = (analogRead(DECAY)/1000)+(analogRead(ATTACK)/1000);
   env->points[2].amp = analogRead(SUSTAIN)/1023;
 
 }
@@ -123,6 +123,23 @@ double envNextValue(ENVELOPE *e){
   return thisvalue;
 }
 
+boolean valuesAreChanged(double *values){
+  if( values[0] + 10 <= analogRead(ATTACK) || values[0] - 10 >= analogRead(ATTACK)){
+    values[0] = analogRead(ATTACK);
+    return true;
+  }
+  if( values[1] + 10 <= analogRead(DECAY) || values[1] -10 >= analogRead(DECAY)){
+    values[1] = analogRead(DECAY);
+    return true;
+  }
+  if(values[2] + 10 <= analogRead(SUSTAIN) || values[2] - 10  >= analogRead(SUSTAIN)){
+    values[2] = analogRead(SUSTAIN);
+    return true;
+  }
+  else
+    return false;
+}
+
 double voltageFromMIDI(byte pitch){
   if (pitch < C1)
     pitch = C1;
@@ -140,6 +157,7 @@ double getValueFromVoltage(double voltage){
 enum synthState {notPlaying, on, off};
 byte state = notPlaying;
 double currentamp;
+double currentvalues[3];
 
 //inviluppi
 ENVELOPE *ADS = newADSEnv(0.3,0.1,0.4);
@@ -147,12 +165,15 @@ ENVELOPE *Release = newREnv(0.4,2.4);
 
 void handleNoteOn(byte channel, byte pitch, byte velocity)
 {
+   envReset(ADS);
+   
    analogWrite(FREQ,getValueFromVoltage(voltageFromMIDI(pitch)));
    state = on;   
 }
 
 void handleNoteOff(byte channel, byte pitch, byte velocity)
 {
+   envReset(Release);    
    state = off;
 }
 
@@ -161,6 +182,7 @@ void setup()
     pinMode(LED,OUTPUT);
     pinMode(FREQ,OUTPUT);
     pinMode(AMP,OUTPUT);
+    //pinMode(2,);
     
     MIDI.setHandleNoteOn(handleNoteOn);
     MIDI.setHandleNoteOff(handleNoteOff);
@@ -171,8 +193,13 @@ void setup()
 
 void loop()
 {    
-    adsModify(ADS);
-    releaseModify(Release);
+    if(valuesAreChanged(currentvalues)){
+        digitalWrite(LED,HIGH);
+        adsModify(ADS);
+        releaseModify(Release);
+        delayMicroseconds(2);     
+    
+    }
     
     MIDI.read();
     
@@ -189,9 +216,8 @@ void loop()
     }
     else{
       digitalWrite(LED,LOW);
-      envReset(ADS);
-      envReset(Release);      
+     
     }
     analogWrite(AMP,currentamp*255);
-    delay(2);
+    delayMicroseconds(2);
 }
